@@ -3,6 +3,10 @@ Firebase Authentication & Cloud Sync for NewsIn.
 Handles login, register, email verification, and saved news sync.
 """
 import json, os, threading
+try:
+    import pyrebase
+except ImportError:
+    pyrebase = None
 
 FIREBASE_CONFIG_FILE = "firebase_config.json"
 SESSION_FILE = "session.json"
@@ -72,7 +76,7 @@ def init():
         print("Firebase config not found!")
         return False
     try:
-        import pyrebase
+        if not pyrebase: return False
         _firebase = pyrebase.initialize_app(config)
         _auth = _firebase.auth()
         _db = _firebase.database()
