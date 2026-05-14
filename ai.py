@@ -1,6 +1,12 @@
 import os, re, time, threading, tempfile, sys
-from deep_translator import GoogleTranslator
-from gtts import gTTS
+try:
+    from deep_translator import GoogleTranslator
+except ImportError:
+    GoogleTranslator = None
+try:
+    from gtts import gTTS
+except ImportError:
+    gTTS = None
 
 class VoiceState:
     def __init__(self): self.enabled=True
@@ -62,6 +68,7 @@ _SIMPLIFY_PAIRS = sorted(_HINDI_SIMPLIFY.items(), key=lambda x: len(x[0]), rever
 
 def _translate(text, lang):
     if lang=="en" or not text: return text
+    if not GoogleTranslator: return text
     try:
         res = GoogleTranslator(source="en",target=lang).translate(text[:500])
         if lang == "hi" and res:
@@ -88,6 +95,9 @@ def _worker():
         if not text or not voice.is_on: continue
         tmp=None
         try:
+            if not gTTS:
+                print("VOICE: library missing")
+                return
             tmp=os.path.join(tempfile.gettempdir(),f"ainews_{int(time.time()*1000)}.mp3")
             gTTS(text=text,lang=lang,slow=False).save(tmp)
             if voice.is_on and not _job: _play_file(tmp,lang)
