@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04  # Using an older, more stable version of Linux for the build
 
     steps:
       - uses: actions/checkout@v4
@@ -15,13 +15,14 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev python3-dev python3-pip
+          sudo apt install -y git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev python3-dev python3-pip openjdk-17-jdk
           pip3 install --user --upgrade buildozer Cython==0.29.33
 
       - name: Build APK
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          buildozer android debug || buildozer android debug
+          # Run buildozer in batch mode to avoid questions
+          buildozer --v android debug
           
       - name: Upload APK
         uses: actions/upload-artifact@v4
