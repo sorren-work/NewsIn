@@ -5,7 +5,8 @@ package.domain = org.newsin
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,json,ttf
 version = 1.0.0
-requirements = python3,pygame,requests,feedparser,urllib3,chardet,certifi,idna
+requirements = python3,pygame,requests,feedparser==6.0.10,urllib3,chardet,certifi,idna
+
 
 orientation = portrait
 fullscreen = 1
