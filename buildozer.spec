@@ -5,8 +5,7 @@ package.domain = org.newsin
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,json,ttf
 version = 1.0.0
-requirements = python3,pygame,requests,feedparser==6.0.10,urllib3,chardet,certifi,idna
-
+requirements = python3,pygame==2.1.0,requests,feedparser==6.0.10,urllib3,chardet,certifi,idna
 
 orientation = portrait
 fullscreen = 1
@@ -18,7 +17,7 @@ android.sdk = 33
 android.accept_sdk_license = True
 
 # (str) The Android arch to build for, choices: armeabi-v7a, arm64-v8a, x86, x86_64
-android.archs = arm64-v8a, armeabi-v7a
+android.archs = arm64-v8a
 
 [buildozer]
 log_level = 2
