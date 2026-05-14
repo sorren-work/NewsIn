@@ -1,0 +1,26 @@
+name: Build NewsIn APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build with Buildozer
+        uses: ArtemSBulgakov/buildozer-action@v1
+        with:
+          buildozer_version: master
+          command: buildozer android release
+          repository_root: .
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: newsin-apk
+          path: bin/*.apk
