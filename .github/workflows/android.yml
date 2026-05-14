@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04  # Using an older, more stable version of Linux for the build
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v4
@@ -21,11 +21,12 @@ jobs:
       - name: Build APK
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # Run buildozer in batch mode to avoid questions
-          buildozer --v android debug
+          # This 'yes' command automatically accepts all Android licenses
+          yes | buildozer -v android debug
           
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: newsin-apk
           path: bin/*.apk
+
