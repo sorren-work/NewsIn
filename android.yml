@@ -23,6 +23,8 @@ jobs:
           buildozer_version: master
           command: buildozer android debug
           repository_root: .
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v3
