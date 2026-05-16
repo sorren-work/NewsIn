@@ -1,4 +1,8 @@
-import pygame, pyperclip, news, ai, factcheck, weather as wx, auth
+import pygame, news, ai, factcheck, weather as wx, auth
+try:
+    import pyperclip
+except ImportError:
+    pyperclip = None
 import re, json, os, threading, webbrowser, math, time, sys
 from difflib import SequenceMatcher
 
