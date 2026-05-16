@@ -61,6 +61,12 @@ LANG_CODES  = {"English":"en","Hindi":"hi","Nepali":"ne"}
 pygame.init()
 is_fullscreen = False
 win_size = (WIN_W, WIN_H)
+def update_dimensions(w, h):
+    global WIN_W, WIN_H, CW
+    WIN_W = max(w, 800)
+    WIN_H = max(h, 600)
+    CW = WIN_W - CX - 14
+
 if IS_ANDROID:
     screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
     WIN_W, WIN_H = screen.get_size()
@@ -68,12 +74,6 @@ if IS_ANDROID:
 else:
     screen=pygame.display.set_mode(win_size, pygame.RESIZABLE)
 pygame.display.set_caption("NewsIn")
-
-def update_dimensions(w, h):
-    global WIN_W, WIN_H, CW
-    WIN_W = max(w, 800)
-    WIN_H = max(h, 600)
-    CW = WIN_W - CX - 14
 
 def F(s,b=False):
     # Try multiple fonts for cross-platform compatibility
