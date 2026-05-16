@@ -1,10 +1,15 @@
 import os, sys, traceback
 
 # Global error logging for Android
-LOG_FILE = "error_log.txt"
+_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+LOG_FILE = os.path.join(_BASE_DIR, "error_log.txt")
+
 if "ANDROID_ARGUMENT" in os.environ or "ANDROID_STORAGE" in os.environ:
-    sys.stderr = open(LOG_FILE, "w")
-    sys.stdout = sys.stderr
+    try:
+        sys.stderr = open(LOG_FILE, "w")
+        sys.stdout = sys.stderr
+    except:
+        pass
 
 try:
     import pygame, news, ai, factcheck, weather as wx, auth
@@ -16,6 +21,12 @@ try:
     from difflib import SequenceMatcher
 
     IS_ANDROID = "ANDROID_ARGUMENT" in os.environ or "ANDROID_STORAGE" in os.environ
+    if IS_ANDROID:
+        try:
+            from android.permissions import request_permissions, Permission
+            request_permissions([Permission.INTERNET, Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE, Permission.RECORD_AUDIO])
+        except:
+            pass
 except Exception:
     if "ANDROID_ARGUMENT" in os.environ:
         with open(LOG_FILE, "a") as f:
