@@ -2,7 +2,7 @@
 Rule-based fact checker — no API key needed.
 Fast, offline, runs in background threads.
 """
-import re, threading, hashlib, time
+import re, threading, hashlib, time, requests
 
 _cache = {}
 _lock  = threading.Lock()
@@ -34,19 +34,22 @@ def _h(title): return hashlib.md5(title.lower().strip().encode()).hexdigest()[:1
 def _check(title, summary, sc):
     if API_KEY:
         try:
-            import warnings
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                import google.generativeai as genai
-            genai.configure(api_key=API_KEY)
-            model = genai.GenerativeModel('gemini-2.5-flash')
-            prompt = f"You are a fact checker. Review this news article. Respond with exactly one word: VERIFIED if it is likely true and from a credible source, or SUSPICIOUS if it uses clickbait, fake news patterns, or lacks credibility. Title: {title}. Summary: {summary}."
-            resp = model.generate_content(prompt)
-            text = resp.text.strip().lower()
-            if "verified" in text: return "verified"
-            if "suspicious" in text: return "suspicious"
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+            payload = {
+                "contents": [{
+                    "parts": [{"text": f"You are a fact checker. Review this news article. Respond with exactly one word: VERIFIED if it is likely true and from a credible source, or SUSPICIOUS if it uses clickbait, fake news patterns, or lacks credibility. Title: {title}. Summary: {summary}."}]
+                }]
+            }
+            resp = requests.post(url, json=payload, timeout=10)
+            if resp.status_code == 200:
+                data = resp.json()
+                text = data["candidates"][0]["content"]["parts"][0]["text"].strip().lower()
+                if "verified" in text: return "verified"
+                if "suspicious" in text: return "suspicious"
+            else:
+                print(f"Gemini API error: {resp.status_code} {resp.text}")
         except Exception as e:
-            print(f"Gemini AI error: {e}")
+            print(f"Gemini REST error: {e}")
             pass # Fallback to heuristic
     
     score = 0
