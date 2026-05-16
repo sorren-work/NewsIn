@@ -1,12 +1,26 @@
-import pygame, news, ai, factcheck, weather as wx, auth
-try:
-    import pyperclip
-except ImportError:
-    pyperclip = None
-import re, json, os, threading, webbrowser, math, time, sys
-from difflib import SequenceMatcher
+import os, sys, traceback
 
-IS_ANDROID = "ANDROID_ARGUMENT" in os.environ or "ANDROID_STORAGE" in os.environ
+# Global error logging for Android
+LOG_FILE = "error_log.txt"
+if "ANDROID_ARGUMENT" in os.environ or "ANDROID_STORAGE" in os.environ:
+    sys.stderr = open(LOG_FILE, "w")
+    sys.stdout = sys.stderr
+
+try:
+    import pygame, news, ai, factcheck, weather as wx, auth
+    try:
+        import pyperclip
+    except ImportError:
+        pyperclip = None
+    import re, json, threading, webbrowser, math, time
+    from difflib import SequenceMatcher
+
+    IS_ANDROID = "ANDROID_ARGUMENT" in os.environ or "ANDROID_STORAGE" in os.environ
+except Exception:
+    if "ANDROID_ARGUMENT" in os.environ:
+        with open(LOG_FILE, "a") as f:
+            traceback.print_exc(file=f)
+    raise
 
 def copy_to_clipboard(text):
     if IS_ANDROID: return
