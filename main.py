@@ -25,65 +25,80 @@ try:
         try:
             from android.permissions import request_permissions, Permission
             request_permissions([Permission.INTERNET, Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE, Permission.RECORD_AUDIO])
+            from android import show_keyboard, hide_keyboard
+        except:
+            def show_keyboard(): pass
+            def hide_keyboard(): pass
+            
+        try:
+            import certifi
+            os.environ["SSL_CERT_FILE"] = certifi.where()
+            os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
         except:
             pass
+    else:
+        def show_keyboard(): pass
+        def hide_keyboard(): pass
 except Exception:
     if "ANDROID_ARGUMENT" in os.environ:
         with open(LOG_FILE, "a") as f:
             traceback.print_exc(file=f)
     raise
 
-def copy_to_clipboard(text):
-    if IS_ANDROID: return
-    try: pyperclip.copy(text)
-    except: pass
+# Scaling and Dimensions
+WIN_W, WIN_H = 1200, 720
+if IS_ANDROID:
+    pygame.display.init()
+    info = pygame.display.Info()
+    WIN_W, WIN_H = info.current_w, info.current_h
+    # Scale based on a standard mobile width of 450px for better fit
+    SCALE = WIN_W / 450.0
+else:
+    SCALE = 1.0
 
-def paste_from_clipboard():
-    if IS_ANDROID: return ""
-    try: return pyperclip.paste()
-    except: return ""
+SIDEBAR_W   = int(238 * SCALE) if not IS_ANDROID else int(80 * SCALE)
+CX          = SIDEBAR_W + int(10 * SCALE)
+CW          = WIN_W - CX - int(10 * SCALE)
+CARD_H      = int(128 * SCALE)
+IMP_CARD_H  = int(136 * SCALE)
+GAP         = int(8 * SCALE)
+TOPBAR_H    = int(94 * SCALE)
+TOPIC_BAR_H = int(30 * SCALE)
+CONTENT_TOP = TOPBAR_H + TOPIC_BAR_H
 
-WIN_W,WIN_H = 1200,720
-SIDEBAR_W   = 238
-CX          = SIDEBAR_W+14
-CW          = WIN_W-CX-14
-CARD_H      = 128
-IMP_CARD_H  = 136
-GAP         = 8
-TOPBAR_H    = 94
-TOPIC_BAR_H = 30
-CONTENT_TOP = TOPBAR_H+TOPIC_BAR_H
-SAVES_FILE  = "saved_news.json"
-SETTINGS_FILE = "settings.json"
-AUTO_RELOAD = 300
-LANG_CODES  = {"English":"en","Hindi":"hi","Nepali":"ne"}
+# Path handling for Android
+if IS_ANDROID:
+    try:
+        from android.storage import app_storage_path
+        base_path = app_storage_path()
+    except:
+        base_path = "."
+else:
+    base_path = "."
+
+SAVES_FILE    = os.path.join(base_path, "saved_news.json")
+SETTINGS_FILE = os.path.join(base_path, "settings.json")
+SESSION_FILE  = os.path.join(base_path, "session.json")
+AUTO_RELOAD   = 300
+LANG_CODES    = {"English":"en","Hindi":"hi","Nepali":"ne"}
 
 pygame.init()
-is_fullscreen = False
-win_size = (WIN_W, WIN_H)
-def update_dimensions(w, h):
-    global WIN_W, WIN_H, CW
-    WIN_W = max(w, 800)
-    WIN_H = max(h, 600)
-    CW = WIN_W - CX - 14
-
 if IS_ANDROID:
-    screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
-    WIN_W, WIN_H = screen.get_size()
-    update_dimensions(WIN_W, WIN_H)
+    screen = pygame.display.set_mode((WIN_W, WIN_H), pygame.FULLSCREEN)
 else:
-    screen=pygame.display.set_mode(win_size, pygame.RESIZABLE)
+    screen = pygame.display.set_mode((1200, 720), pygame.RESIZABLE)
 pygame.display.set_caption("NewsIn")
 
-def F(s,b=False):
-    # Try multiple fonts for cross-platform compatibility
+def F(s, b=False):
+    scaled_size = int(s * (SCALE if IS_ANDROID else 1.0))
+    if not IS_ANDROID and s > 20: scaled_size = s # Don't overscale on desktop
     for fn in ["segoeui", "arial", "sans-serif", "dejavusans", "roboto"]:
         try:
-            f = pygame.font.SysFont(fn, s, bold=b)
-            # Test if font actually loaded something better than default
+            f = pygame.font.SysFont(fn, scaled_size, bold=b)
             if f: return f
         except: continue
-    return pygame.font.SysFont(None, s, bold=b)
+    return pygame.font.SysFont(None, scaled_size, bold=b)
+
 fH=F(24,True);fT=F(19,True);fB=F(16);fSm=F(13);fXs=F(12)
 fTg=F(11,True);fBtn=F(13,True);fSrch=F(15)
 
@@ -1650,6 +1665,7 @@ while running:
                 if search_rect and search_rect.collidepoint(mx,my):
                     search_active=True; pos=char_at_x(mx)
                     search_sel_s=search_sel_e=pos; mouse_on_search=True
+                    show_keyboard()
                 elif detail_open:
                     detail_click(mx,my)
                 elif _try_start_news_line_drag(mx,my):
@@ -1676,6 +1692,7 @@ while running:
                             elif panel=="weather": wx_click(mx,my)
                             else:
                                 search_active=False
+                                hide_keyboard()
                                 if not dot_click(mx,my): pass  # cards don't open popup
             elif not detail_open:
                 spd=60
