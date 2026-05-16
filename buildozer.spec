@@ -5,7 +5,7 @@ package.domain = org.newsin
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,json,ttf
 version = 1.0.0
-requirements = python3==3.10.12,hostpython3==3.10.12,setuptools,pygame,requests,feedparser==6.0.10,urllib3,chardet,certifi,idna,sqlite3,openssl,sdl2_image,sdl2_mixer,sdl2_ttf,sdl2,gTTS,deep-translator,plyer,android
+requirements = python3==3.10.12,hostpython3==3.10.12,setuptools,pygame,requests,feedparser==6.0.10,urllib3,chardet,certifi,idna,sqlite3,openssl,sdl2_image,sdl2_mixer,sdl2_ttf,sdl2,gTTS,deep-translator,plyer,android,beautifulsoup4,click,six
 
 orientation = portrait
 fullscreen = 1
